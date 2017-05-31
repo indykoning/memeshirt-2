@@ -1,4 +1,5 @@
 <?php
+//test
 error_reporting(0);
 $expire = 365*24*3600;
 ini_set('session.gc_maxlifetime', $expire);
