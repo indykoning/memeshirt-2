@@ -7,6 +7,7 @@ ini_set('post_max_size', '-1');
 ini_set('upload_max_filesize', '-1');
 session_start();
 require_once  "includes/db.php";
+$db = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8', DB_USERNAME, DB_PASSWORD);
 $sql = "SELECT * FROM `prijzen` WHERE id=1";
 $result = $mysqli->query($sql);
 $prijzen = $result->fetch_assoc();
@@ -92,12 +93,13 @@ if (!empty($_POST['image'])) {
         ]
     ]);
     if (file_put_contents($file, $data, false, $context) !== false) {
+        var_dump("ez");
         $user_id = (!empty($_SESSION['ID'])) ? $_SESSION['ID'] : 'Null';
         if (empty($_SESSION['bestelling_id'])) {
             $sql = "INSERT INTO `bestelling`(`status`, `users_id`) VALUES (0, $user_id)";
             $result = $mysqli->query($sql);
             $_SESSION['bestelling_id'] = $mysqli->insert_id;
-//            var_dump('bestelling_id is leeg');
+
         }
         $xs = abs($_POST['xs']) * PRIJS_XS;
         $s = abs($_POST['s']) * PRIJS_S;
@@ -106,11 +108,15 @@ if (!empty($_POST['image'])) {
         $xl = abs($_POST['xl']) * PRIJS_XL;
         $xxl = abs($_POST['xxl']) * PRIJS_XXL;
         $totaal = $xs+$s+$m+$l+$xl+$xxl;
-        $sql = "INSERT INTO `images`(`filename`, `totaal_prijs`, `xs`, `s`, `m`, `l`, `xl`, `xxl`, `bestelling_id`, `kleur`) VALUES ('" . $imagename . "',". $totaal ."," . abs($_POST['xs']) . "," . abs($_POST['s']) . "," . abs($_POST['m']) . "," . abs($_POST['l']) . "," . abs($_POST['xl']) . "," . abs($_POST['xxl']) . "," . $_SESSION['bestelling_id'] . ", '".$_POST['shirtColor']."')";
-        $mysqli->query($sql);
-//        var_dump('foto geupload');
-    var_dump($sql);
-    var_dump(mysqli_error($mysqli));
+//        $sql = "INSERT INTO `images`(`filename`, `totaal_prijs`, `xs`, `s`, `m`, `l`, `xl`, `xxl`, `bestelling_id`, `kleur`) VALUES ('" . $imagename . "',". $totaal ."," . abs($_POST['xs']) . "," . abs($_POST['s']) . "," . abs($_POST['m']) . "," . abs($_POST['l']) . "," . abs($_POST['xl']) . "," . abs($_POST['xxl']) . "," . $_SESSION['bestelling_id'] . ", '".$_POST['shirtColor']."')";
+//        $mysqli->query($sql);
+
+
+        $stmt = $db->prepare("INSERT INTO `images`(`filename`, `totaal_prijs`, `xs`, `s`, `m`, `l`, `xl`, `xxl`, `bestelling_id`, `kleur`) VALUES ('" . $imagename . "',". $totaal ."," . abs($_POST['xs']) . "," . abs($_POST['s']) . "," . abs($_POST['m']) . "," . abs($_POST['l']) . "," . abs($_POST['xl']) . "," . abs($_POST['xxl']) . "," . $_SESSION['bestelling_id'] . ", :shirtColor)");
+        $stmt->bindValue(':shirtColor', filter_var($_POST['shirtColor'], FILTER_SANITIZE_STRING), PDO::PARAM_STR);
+        $stmt->execute();
+        //    var_dump($sql);
+//    var_dump(mysqli_error($mysqli));
     }else{
 //        var_dump('err');
 

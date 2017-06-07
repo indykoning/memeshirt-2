@@ -1,7 +1,7 @@
 <script src="js/fabric.js"></script>
 <script src="js/jscolor.js"></script>
 <div id="loading" style="position: fixed; background-color: rgba(0,0,0,0.5); z-index: 2000; width: 100%; height: 100%; display:none; vertical-align:middle; text-align:center">
-    <img src="http://www.cuisson.co.uk/templates/cuisson/supersize/slideshow/img/progress.BAK-FOURTH.gif"><br>
+    <img width="100" height="100" src="links/loading.gif"><br>
     <progress id="progress" value="0" max="100"></progress>
 </div>
 

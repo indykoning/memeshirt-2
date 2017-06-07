@@ -2,6 +2,7 @@
 //var_dump($_POST);
 //$_SESSION['bestelling_id']= 3;
 //var_dump($_SERVER);
+$db = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8', DB_USERNAME, DB_PASSWORD);
 $sql = "SELECT * FROM bestelling WHERE id = ".$_SESSION['bestelling_id'];
 $result = $mysqli->query($sql);
 if (!empty($_POST['betaal'])){
@@ -13,8 +14,17 @@ if (!empty($_POST['betaal'])){
     $goodTogo = true;
 
     if (!LOGGED_IN && !empty($_POST['email'])&& !empty($_POST['straatnaam'])&& !empty($_POST['huisnummer'])&& !empty($_POST['postcode'])&& !empty($_POST['plaatsnaam'])){
-        $sql = "UPDATE bestelling SET b_email='" . $_POST['email'] . "', b_straatnaam='" . $_POST['straatnaam'] . "', b_huisnummer='" . $_POST['huisnummer'] . "', b_postcode='" . $_POST['postcode'] . "', b_plaatsnaam='" . $_POST['plaatsnaam'] . "' WHERE id=". $_SESSION['bestelling_id'];
-        $mysqli->query($sql);
+        $stmt = $db->prepare("UPDATE bestelling SET b_email= :email, b_straatnaam= :straatnaam, b_huisnummer= :huisnummer, b_postcode= :postcode, b_plaatsnaam= :plaatsnaam WHERE id= :bestelling_id");
+        $stmt->bindValue(':email', filter_var($_POST['email'], FILTER_SANITIZE_EMAIL), PDO::PARAM_STR);
+        $stmt->bindValue(':straatnaam', filter_var($_POST['straatnaam'], FILTER_SANITIZE_STRING), PDO::PARAM_STR);
+        $stmt->bindValue(':huisnummer', filter_var($_POST['huisnummer'], FILTER_SANITIZE_NUMBER_INT), PDO::PARAM_INT);
+        $stmt->bindValue(':postcode', filter_var($_POST['postcode'], FILTER_SANITIZE_STRING), PDO::PARAM_STR);
+        $stmt->bindValue(':plaatsnaam', filter_var($_POST['plaatsnaam'], FILTER_SANITIZE_STRING), PDO::PARAM_STR);
+        $stmt->bindValue(':bestelling_id', filter_var($_SESSION['bestelling_id'], FILTER_SANITIZE_STRING), PDO::PARAM_STR);
+        $stmt->execute();
+//
+//        $sql = "UPDATE bestelling SET b_email='" . $_POST['email'] . "', b_straatnaam='" . $_POST['straatnaam'] . "', b_huisnummer='" . $_POST['huisnummer'] . "', b_postcode='" . $_POST['postcode'] . "', b_plaatsnaam='" . $_POST['plaatsnaam'] . "' WHERE id=". $_SESSION['bestelling_id'];
+//        $mysqli->query($sql);
     }elseif (!LOGGED_IN){
         echo "<h1 style='color: red'>Nog niet alle velden zijn ingevuld</h1>";
         $goodTogo = false;
@@ -64,9 +74,17 @@ if(!empty($_POST['update'])) {
     $xxl = abs($_POST['xxl']) * PRIJS_XXL;
     $totaal = $xs+$s+$m+$l+$xl+$xxl;
 //    var_dump(PRIJS_XS);
-    $sql = "UPDATE images SET totaal_prijs = '".$totaal."', xs = '" . $_POST['xs'] . "', s = '" . $_POST['s'] . "', m = '" . $_POST['m'] . "', l = '" . $_POST['l'] . "', xl = '" . $_POST['xl'] . "', xxl = '" . $_POST['xxl'] . "' WHERE id = ".$_POST['id'];
-    $result = $mysqli->query($sql);
-
+//    $sql = "UPDATE images SET totaal_prijs = '".$totaal."', xs = '" . $_POST['xs'] . "', s = '" . $_POST['s'] . "', m = '" . $_POST['m'] . "', l = '" . $_POST['l'] . "', xl = '" . $_POST['xl'] . "', xxl = '" . $_POST['xxl'] . "' WHERE id = ".$_POST['id'];
+//    $result = $mysqli->query($sql);
+    $stmt = $db->prepare("UPDATE images SET totaal_prijs = '".$totaal."', xs = :xs, s = :s, m = :xs, l = :l, xl = :xl, xxl = :xxl WHERE id = :id");
+    $stmt->bindValue(':xs', filter_var(abs($_POST['xs']), FILTER_SANITIZE_NUMBER_INT), PDO::PARAM_INT);
+    $stmt->bindValue(':s', filter_var(abs($_POST['s']), FILTER_SANITIZE_NUMBER_INT), PDO::PARAM_INT);
+    $stmt->bindValue(':m', filter_var(abs($_POST['m']), FILTER_SANITIZE_NUMBER_INT), PDO::PARAM_INT);
+    $stmt->bindValue(':l', filter_var(abs($_POST['l']), FILTER_SANITIZE_NUMBER_INT), PDO::PARAM_INT);
+    $stmt->bindValue(':xl', filter_var(abs($_POST['xl']), FILTER_SANITIZE_NUMBER_INT), PDO::PARAM_INT);
+    $stmt->bindValue(':xxl', filter_var(abs($_POST['xxl']), FILTER_SANITIZE_NUMBER_INT), PDO::PARAM_INT);
+    $stmt->bindValue(':id', filter_var($_POST['id'], FILTER_SANITIZE_NUMBER_INT), PDO::PARAM_INT);
+    $stmt->execute();
 }
 if(!empty($_POST['delete'])) {
     $sql = "SELECT * FROM images WHERE id = ".$_POST['id'];
@@ -194,8 +212,12 @@ if (!LOGGED_IN){
                 <input type='submit' name='betaal' value='Betaal' class='btn btn-info btn_ontwerpproces_verder h_button_verder' style='margin-bottom: 10px'/>
             </div></form>";
 if(!empty($_POST['update'])) {
-    $sql = "UPDATE bestelling SET totale_prijs = '". $totale_prijs ."' WHERE id = ".$_POST['id'];
-    $result = $mysqli->query($sql);
+
+    $stmt = $db->prepare("UPDATE bestelling SET totale_prijs = '". $totale_prijs ."' WHERE id = :id");
+    $stmt->bindValue(':id', filter_var($_POST['id'], FILTER_SANITIZE_NUMBER_INT), PDO::PARAM_INT);
+    $stmt->execute();
+//    $sql = "UPDATE bestelling SET totale_prijs = '". $totale_prijs ."' WHERE id = ".$_POST['id'];
+//    $result = $mysqli->query($sql);
 }
 ?>
 <script>
