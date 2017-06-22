@@ -20,17 +20,6 @@ define('PRIJS_XXL', $prijzen['XXL']);
 $output_width = 3508;
 $output_height = 2480;
 
-//if (!empty($_POST)){
-//    $img = '';
-//    foreach ($_POST['image'] as $value){
-//        $img.=$value;
-//
-//    }
-//    echo "<img src='" . $img . "'>";
-////    echo $img;
-//    var_dump(strlen($img));
-//    var_dump(substr($img, -1));
-//}
 
 function setTransparency($new_image,$image_source)
 {
@@ -61,19 +50,10 @@ if (!empty($_POST['image'])) {
 
     $img = str_replace('data:image/png;base64,', '', $img);
     $img = str_replace(' ', '+', $img);
-    var_dump($img);
     $data = base64_decode($img);
     $image = imagecreatefromstring($data);
-//    imagecolortransparent($image, imagecolorallocate($image,255, 255, 255));
-//    imagealphablending($image, false);
-//    imagesavealpha($image, true);
-
-
     $image_p = imagecreatetruecolor($output_width, $output_height);
     setTransparency($image_p, $image);
-//    imagecolortransparent($image_p, imagecolorallocate($image_p,255, 255, 255));
-//    imagealphablending($image_p, false);
-//    imagesavealpha($image_p, true);
     $width = imagesx($image);
     $height = imagesy($image);
     imagecopyresampled($image_p, $image, 0, 0, 0, 0,$output_width , $output_height, $width, $height);
@@ -93,7 +73,7 @@ if (!empty($_POST['image'])) {
         ]
     ]);
     if (file_put_contents($file, $data, false, $context) !== false) {
-        var_dump("ez");
+
         $user_id = (!empty($_SESSION['ID'])) ? $_SESSION['ID'] : 'Null';
         if (empty($_SESSION['bestelling_id'])) {
             $sql = "INSERT INTO `bestelling`(`status`, `users_id`) VALUES (0, $user_id)";
@@ -115,10 +95,11 @@ if (!empty($_POST['image'])) {
         $stmt = $db->prepare("INSERT INTO `images`(`filename`, `totaal_prijs`, `xs`, `s`, `m`, `l`, `xl`, `xxl`, `bestelling_id`, `kleur`) VALUES ('" . $imagename . "',". $totaal ."," . abs($_POST['xs']) . "," . abs($_POST['s']) . "," . abs($_POST['m']) . "," . abs($_POST['l']) . "," . abs($_POST['xl']) . "," . abs($_POST['xxl']) . "," . $_SESSION['bestelling_id'] . ", :shirtColor)");
         $stmt->bindValue(':shirtColor', filter_var($_POST['shirtColor'], FILTER_SANITIZE_STRING), PDO::PARAM_STR);
         $stmt->execute();
-        //    var_dump($sql);
-//    var_dump(mysqli_error($mysqli));
-    }else{
-//        var_dump('err');
+        if (isset($_POST['fotoNaam'])) {
+            $stmt = $db->prepare("UPDATE `memes` SET keren_gebruikt = keren_gebruikt + 1");
+            $stmt->execute();
+        }
+
 
     }
 }?>

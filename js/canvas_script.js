@@ -41,9 +41,10 @@ if (navigator.userAgent.search("Safari") >= 0 && navigator.userAgent.search("Chr
             canvas.getActiveObject().remove();
         });
         document.addEventListener('keyup', function (e) {
-            if (e.key == 'Delete') {
+
+            if (e.keyCode == 46) {
                 canvas.getActiveObject().remove();
-            } else if (e.key == 'Enter') {
+            } else if (e.keyCode == 13) {
                 canvas.deactivateAll();
             }
             ;
@@ -142,13 +143,15 @@ if (navigator.userAgent.search("Safari") >= 0 && navigator.userAgent.search("Chr
             });
 
         }
-
         document.getElementById('wagen').addEventListener('click', function () {
             canvas.deactivateAll();
             document.getElementById('loading').style.display = 'table-cell';
             var imgBase64 = canvas.toDataURL('image/jpg');
             document.getElementById('ImageToUpload').value = imgBase64;
             var fd = new FormData(document.forms["uploadForm"]);
+            if (getUrlVars()['foto'] != undefined) {
+                fd.append('fotoNaam', getUrlVars()['foto']);
+            }
             var xhr = new XMLHttpRequest();
             xhr.open('POST', 'views/private/upload_ontwerp.php', true);
             xhr.upload.onprogress = function (e) {
