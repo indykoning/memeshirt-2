@@ -48,7 +48,6 @@ define('rank', $login->getArray()['rank']);
 
 
 include_once "views/private/head.php";
-include_once "views/private/header.php";
 include_once "views/private/nav.php";
 if(file_exists('views/'. $action . '.php')){
     include_once 'views/'. $action . '.php';
