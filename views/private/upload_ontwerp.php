@@ -95,7 +95,6 @@ if (!empty($_POST['image'])) {
         $stmt = $db->prepare("INSERT INTO `images`(`filename`, `totaal_prijs`, `xs`, `s`, `m`, `l`, `xl`, `xxl`, `bestelling_id`, `kleur`) VALUES ('" . $imagename . "',". $totaal ."," . abs($_POST['xs']) . "," . abs($_POST['s']) . "," . abs($_POST['m']) . "," . abs($_POST['l']) . "," . abs($_POST['xl']) . "," . abs($_POST['xxl']) . "," . $_SESSION['bestelling_id'] . ", :shirtColor)");
         $stmt->bindValue(':shirtColor', filter_var($_POST['shirtColor'], FILTER_SANITIZE_STRING), PDO::PARAM_STR);
         $stmt->execute();
-        var_dump($stmt);
         if (isset($_POST['fotoNaam'])) {
             $stmt = $db->prepare("UPDATE `memes` SET keren_gebruikt = keren_gebruikt + 1");
             $stmt->execute();

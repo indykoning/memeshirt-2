@@ -2,9 +2,9 @@
 //var_dump($_POST);
 //$_SESSION['bestelling_id']= 3;
 //var_dump($_SERVER);
+$db = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8', DB_USERNAME, DB_PASSWORD);
 $sql = "SELECT * FROM bestelling WHERE id = ".$_SESSION['bestelling_id'];
 $result = $mysqli->query($sql);
-
 if (!empty($_POST['betaal'])){
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
@@ -14,8 +14,17 @@ if (!empty($_POST['betaal'])){
     $goodTogo = true;
 
     if (!LOGGED_IN && !empty($_POST['email'])&& !empty($_POST['straatnaam'])&& !empty($_POST['huisnummer'])&& !empty($_POST['postcode'])&& !empty($_POST['plaatsnaam'])){
-        $sql = "UPDATE bestelling SET b_email='" . $_POST['email'] . "', b_straatnaam='" . $_POST['straatnaam'] . "', b_huisnummer='" . $_POST['huisnummer'] . "', b_postcode='" . $_POST['postcode'] . "', b_plaatsnaam='" . $_POST['plaatsnaam'] . "' WHERE id=". $_SESSION['bestelling_id'];
-        $mysqli->query($sql);
+        $stmt = $db->prepare("UPDATE bestelling SET b_email= :email, b_straatnaam= :straatnaam, b_huisnummer= :huisnummer, b_postcode= :postcode, b_plaatsnaam= :plaatsnaam WHERE id= :bestelling_id");
+        $stmt->bindValue(':email', filter_var($_POST['email'], FILTER_SANITIZE_EMAIL), PDO::PARAM_STR);
+        $stmt->bindValue(':straatnaam', filter_var($_POST['straatnaam'], FILTER_SANITIZE_STRING), PDO::PARAM_STR);
+        $stmt->bindValue(':huisnummer', filter_var($_POST['huisnummer'], FILTER_SANITIZE_NUMBER_INT), PDO::PARAM_INT);
+        $stmt->bindValue(':postcode', filter_var($_POST['postcode'], FILTER_SANITIZE_STRING), PDO::PARAM_STR);
+        $stmt->bindValue(':plaatsnaam', filter_var($_POST['plaatsnaam'], FILTER_SANITIZE_STRING), PDO::PARAM_STR);
+        $stmt->bindValue(':bestelling_id', filter_var($_SESSION['bestelling_id'], FILTER_SANITIZE_STRING), PDO::PARAM_STR);
+        $stmt->execute();
+//
+//        $sql = "UPDATE bestelling SET b_email='" . $_POST['email'] . "', b_straatnaam='" . $_POST['straatnaam'] . "', b_huisnummer='" . $_POST['huisnummer'] . "', b_postcode='" . $_POST['postcode'] . "', b_plaatsnaam='" . $_POST['plaatsnaam'] . "' WHERE id=". $_SESSION['bestelling_id'];
+//        $mysqli->query($sql);
     }elseif (!LOGGED_IN){
         echo "<h1 style='color: red'>Nog niet alle velden zijn ingevuld</h1>";
         $goodTogo = false;
@@ -24,6 +33,7 @@ if (!empty($_POST['betaal'])){
     if (LOGGED_IN || $goodTogo) {
 //        var_dump('mollie start');
         $row = $result->fetch_assoc();
+
 
         try
         {
@@ -41,12 +51,16 @@ if (!empty($_POST['betaal'])){
             <script>window.location.href ="<?php echo $payment->links->paymentUrl; ?>";</script>
             <a href="<?php echo $payment->links->paymentUrl; ?>"><h1>Klik hier om door te gaan naar de betaling</h1></a>
             <?php
+
+
         }
         catch (Mollie_API_Exception $e)
         {
             echo "Setting up payment failed" . htmlspecialchars($e->getMessage());
 
         }
+
+
     }
 }
 if($result->num_rows > 0) {
@@ -59,9 +73,18 @@ if(!empty($_POST['update'])) {
     $xl = abs($_POST['xl']) * PRIJS_XL;
     $xxl = abs($_POST['xxl']) * PRIJS_XXL;
     $totaal = $xs+$s+$m+$l+$xl+$xxl;
-    $sql = "UPDATE images SET totaal_prijs = '".$totaal."', xs = '" . $_POST['xs'] . "', s = '" . $_POST['s'] . "', m = '" . $_POST['m'] . "', l = '" . $_POST['l'] . "', xl = '" . $_POST['xl'] . "', xxl = '" . $_POST['xxl'] . "' WHERE id = ".$_POST['id'];
-    $result = $mysqli->query($sql);
-
+//    var_dump(PRIJS_XS);
+//    $sql = "UPDATE images SET totaal_prijs = '".$totaal."', xs = '" . $_POST['xs'] . "', s = '" . $_POST['s'] . "', m = '" . $_POST['m'] . "', l = '" . $_POST['l'] . "', xl = '" . $_POST['xl'] . "', xxl = '" . $_POST['xxl'] . "' WHERE id = ".$_POST['id'];
+//    $result = $mysqli->query($sql);
+    $stmt = $db->prepare("UPDATE images SET totaal_prijs = '".$totaal."', xs = :xs, s = :s, m = :xs, l = :l, xl = :xl, xxl = :xxl WHERE id = :id");
+    $stmt->bindValue(':xs', filter_var(abs($_POST['xs']), FILTER_SANITIZE_NUMBER_INT), PDO::PARAM_INT);
+    $stmt->bindValue(':s', filter_var(abs($_POST['s']), FILTER_SANITIZE_NUMBER_INT), PDO::PARAM_INT);
+    $stmt->bindValue(':m', filter_var(abs($_POST['m']), FILTER_SANITIZE_NUMBER_INT), PDO::PARAM_INT);
+    $stmt->bindValue(':l', filter_var(abs($_POST['l']), FILTER_SANITIZE_NUMBER_INT), PDO::PARAM_INT);
+    $stmt->bindValue(':xl', filter_var(abs($_POST['xl']), FILTER_SANITIZE_NUMBER_INT), PDO::PARAM_INT);
+    $stmt->bindValue(':xxl', filter_var(abs($_POST['xxl']), FILTER_SANITIZE_NUMBER_INT), PDO::PARAM_INT);
+    $stmt->bindValue(':id', filter_var($_POST['id'], FILTER_SANITIZE_NUMBER_INT), PDO::PARAM_INT);
+    $stmt->execute();
 }
 if(!empty($_POST['delete'])) {
     $sql = "SELECT * FROM images WHERE id = ".$_POST['id'];
@@ -80,6 +103,7 @@ if(!empty($_POST['delete'])) {
         unset($_SESSION['bestelling_id']);
     };
 }
+
 $sql = "SELECT * FROM bestelling JOIN images ON bestelling.id = images.bestelling_id WHERE bestelling.id = " . $_SESSION['bestelling_id'];
 $result = $mysqli->query($sql);
 
@@ -94,8 +118,11 @@ echo '    <div class="row">
                         <h1 class="h_bestelling">Winkelwagen</h1>
                         <div class="blue_line"></div>
                     </div>';
-
+            
 while ($row = $result->fetch_assoc()) {
+
+
+
 echo '
 <form method=\'post\' class=\'formpie\'>
     <div class="col-sm-4 col-xs-12 row_winkelwagen">
@@ -118,7 +145,7 @@ echo '
                         <h1 class="h_bestelling_specs2">&euro; '. $row["totaal_prijs"] .'</h1>
                         <p class="verwijderen" style><label style="cursor: pointer;margin-bottom: 145px;" for="delete_wagen_'.$i.'">Verwijderen</label></p>
                     </div>
-
+                    
 ';
     echo "<input name='id' type='hidden' value='".$row['id']."' />";
     echo "<input type='hidden' name='update' value='Sla op' />";
@@ -127,78 +154,17 @@ echo '
     $totale_prijs += $row['totaal_prijs'];
     echo "</form>";
 }
-
-    date_default_timezone_set("Europe/Amsterdam");
-
-
-
-    if($_SESSION['ID']){
-        $sql = "SELECT * FROM users WHERE id = " . $_SESSION['ID'];
-        $result = $mysqli->query($sql);
-        while ($row = $result->fetch_assoc()) {
-            $dataA = $row['laatste_bestelling'];
-        }
-
-        $sql = "SELECT * FROM prijzen WHERE id = 1";
-        $result = $mysqli->query($sql);
-        while ($row = $result->fetch_assoc()) {
-            $tijdKorting = $row['tijdKorting'];
-            $tijdKorting += 1;
-            $kortingPercent = $row['kortingPercent'];
-        }
-        $subtotaal = $totale_prijs;
-    } else {
-        $subtotaal = $totale_prijs;
-    }
-
-
-    if(strtotime($dataA) > strtotime('-'.$tijdKorting.' days')){
-        $korting = $subtotaal / $kortingPercent;
-        $totale_prijs -= $korting;
-        $dagen =  ( strtotime($dataA) - strtotime('now'));
-        $dagen = date('j', $dagen);
-    } else{
-        $korting = 0;
-        $kortingPercent = 0;
-    }
-
-
-    if(!empty($_POST['coupon'])) {
-        $coupon = $_POST['couponCode'];
-        $sql = "SELECT * FROM coupon WHERE code = '". $coupon."'";
-
-        $result = $mysqli->query($sql);
-
-        while ($row = $result->fetch_assoc()) {
-            $manier = $row['geld_procent'];
-            $kortingGetal = $row['korting'];
-        }
-
-
-        if($manier){
-            $kortingGetal = 100 - $kortingGetal;
-            $totale_prijs = $totale_prijs / 100 * $kortingGetal;
-
-        } else{
-            $totale_prijs -= $kortingGetal;
-        }
-    }
-
 echo "</div>
                  <div class=\"col-xs-12 row_winkelwagen\">
                         <div class=\"blue_line\"></div>
                     </div>
                  <div class=\"col-sm-3 col-sm-offset-7 col-xs-6 row_winkelwagen\">
-                        <h1 class=\"h_verzendkosten\">Subtotaal:</h1>
                         <h1 class=\"h_verzendkosten\">Verzendkosten:</h1>
-                        <h1 class=\"h_verzendkosten\">Korting:"; echo ($dagen > 0)? " (Dagen nog korting: ".$dagen.")" : ""; echo "</h1>
                         <h1 class=\"h_totaal_prijs\">Totale prijs:</h1>
                     </div>
                     <div class=\"col-sm-2 col-xs-6 row_winkelwagen text_align_right_totaal\">
-                        <h1 class=\"h_verzendkosten\">&euro; ".$subtotaal." </h1>
                         <h1 class=\"h_verzendkosten\">&euro; 0,00</h1>
-                        <h1 class=\"h_verzendkosten\">&euro; ".number_format($korting, 2)." (".$kortingPercent."%)</h1>
-                        <h1 class=\"h_totaal_prijs\">&euro; ".number_format($totale_prijs, 2)." </h1>
+                        <h1 class=\"h_totaal_prijs\">&euro; ".$totale_prijs."</h1>
                     </div>
                     ";
 $sql = "UPDATE bestelling SET totale_prijs = ". $totale_prijs . " WHERE id= ". $_SESSION['bestelling_id'];
@@ -244,14 +210,15 @@ if (!LOGGED_IN){
 };
     echo "<div class='col-xs-12' style='background-color: white !important;'>
                 <input type='submit' name='betaal' value='Betaal' class='btn btn-info btn_ontwerpproces_verder h_button_verder' style='margin-bottom: 10px'/>
-               <input type='text' name='couponCode' placeholder='Korting code'/>
-               <input type='submit' name='coupon' value='Check op korting' />
             </div></form>";
 if(!empty($_POST['update'])) {
-    $sql = "UPDATE bestelling SET totale_prijs = '". $totale_prijs ."' WHERE id = ".$_POST['id'];
-    $result = $mysqli->query($sql);
-}
 
+    $stmt = $db->prepare("UPDATE bestelling SET totale_prijs = '". $totale_prijs ."' WHERE id = :id");
+    $stmt->bindValue(':id', filter_var($_POST['id'], FILTER_SANITIZE_NUMBER_INT), PDO::PARAM_INT);
+    $stmt->execute();
+//    $sql = "UPDATE bestelling SET totale_prijs = '". $totale_prijs ."' WHERE id = ".$_POST['id'];
+//    $result = $mysqli->query($sql);
+}
 ?>
 <script>
     function liveEdit(id){
