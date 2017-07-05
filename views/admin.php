@@ -297,7 +297,7 @@ if(!empty($_POST['new']) && !empty($_FILES['fileToUpload']['name'])) {
     $destination = $image_path . $filename;
     move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file);
 
-    $sql = "INSERT INTO memes (filename) VALUES ('" . $destination . "') ";
+    $sql = "INSERT INTO memes (filename, titel) VALUES ('" . $destination . "', '".$_POST['titel']."') ";
     $result = $mysqli->query($sql);
 }
 
@@ -313,7 +313,7 @@ if(!empty($_POST['delete'])) {
     if($_GET['page'] == 'prijs'){
 
         if(isset($_POST['editprijs'])){
-            $sql = "UPDATE prijzen SET XS=".$_POST['XS'].",S=".$_POST['S'].",M=".$_POST['M'].",L=".$_POST['L'].",XL=".$_POST['XL'].",XXL=".$_POST['XXL'] . " WHERE id=1";
+            $sql = "UPDATE prijzen SET tijdKorting=".$_POST['tijdKorting'].", kortingPercent =".$_POST['kortingPercent'].", XS=".$_POST['XS'].",S=".$_POST['S'].",M=".$_POST['M'].",L=".$_POST['L'].",XL=".$_POST['XL'].",XXL=".$_POST['XXL'] . " WHERE id=1";
             $mysqli->query($sql);
         }
         $sql = "SELECT * FROM prijzen WHERE id=1";
@@ -327,12 +327,15 @@ if(!empty($_POST['delete'])) {
                 <tr><td>L</td><td>&euro;<input name='L' onchange='document.getElementById(\"prijsForm\").submit()' type='number' min='0' value='" . $row['L'] . "'></td></tr>
                 <tr><td>XL</td><td>&euro;<input name='XL' onchange='document.getElementById(\"prijsForm\").submit()' type='number' min='0' value='" . $row['XL'] . "'></td></tr>
                 <tr><td>XXL</td><td>&euro;<input name='XXL' onchange='document.getElementById(\"prijsForm\").submit()' type='number' min='0' value='" . $row['XXL'] . "'></td></tr>
+                <tr><td>Korting percentage</td><td>&euro;<input name='kortingPercent' onchange='document.getElementById(\"prijsForm\").submit()' type='number' min='0' value='" . $row['kortingPercent'] . "'></td></tr>
+                <tr><td>Tijd in dagen van korting na betaling</td><td>&euro;<input name='tijdKorting' onchange='document.getElementById(\"prijsForm\").submit()' type='number' min='0' value='" . $row['tijdKorting'] . "'></td></tr>
       </table></form>";
     }
     elseif($_GET['page'] == 'meme'){
 
     echo "<form method='post' style='margin-top: 7%' target='_self'enctype='multipart/form-data'>";
     echo "<input type='file' name='fileToUpload' id='fileToUpload' />";
+        echo "<input type='text' name='titel' placeholder='Titel'>";
     echo "<input type='submit' name='new' value='Voeg toe'>";
     echo "</form>";
 

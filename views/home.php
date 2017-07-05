@@ -1,49 +1,44 @@
-<div class="background-image hidden-sm">
-    <img id="wegErmee" src="links/wallpaper_home.jpg" alt="background image">
-</div>
-<div class="background-image hidden-sm hidden-md hidden-lg">
-    <img src="links/wallpaper_mobile.jpg" alt="background image">
-</div>
-<div class="gratis_balk" style="margin-top: 50px;padding-top: 2px">
-    <p class="p_gratis"> Gratis verzending | Binnen 2 werkdagen in huis</p>
-</div>
-<div class="row">
-    <div class="col-xs-12">
-        <div class="wrapper_home">
-            <div class="row row_home">
-                <div class="col-xs-12">
-                    <h2 class="h2_home">Style your meme</h2>
-                    <h2 class="h2_home">and let the meme style you</h2>
-                    <button onclick="window.location.href='ontwerpen'" type="button" class="btn btn-info btn_ontwerpen h_button_home">Ontwerp je eigen shirt</button>
-                    <div class="bounce"><a href="#wrapper_winkelen"><span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span></a></div>
-                </div>
-            </div>
+<div class="wrapper">
+    <div class="containerdiv updatesectie">
+        <p>Gratis verzending | Binnen 2 werkdagen in huis</p>
+    </div>
+    <div class="containerdiv titelsectie">
+        <h1>Style your meme and let the meme style you</h1>
+    </div>
+    <div class="containerdiv stapsectie">
+        <div>
+            <h2>Kies</h2>
+            <hr>
+            <img src="links/stap1.jpg" alt="stap1">
+            <p>Upload een foto of kies uit een van onze bestaande memes.</p>
+        </div>
+        <div>
+            <h2>Ontwerp</h2>
+            <hr>
+            <img src="" alt="stap2">
+            <p>Ontwerp je meme naar je eigen wensen.</p>
+        </div>
+        <div>
+            <h2>Bestel</h2>
+            <hr>
+            <img src="" alt="stap3">
+            <p>Bestel en ontvang je t-shirt.</p>
         </div>
     </div>
-</div>
-<div class="row">
-    <div class="col-xs-12">
-        <div id="wrapper_winkelen">
-            <div class="row row_winkelen">
-                <div class="col-xs-12">
-                    <div class="wrapper_banner">
-                        <h2 class="h2_winkelen">Bestaande memes</h2>
-                    </div>
-                </div>
-                <div class="col-xs-12">
-
-                    <?php
-                    include_once "model/LoadMemes.php";
-                    ?>
-
-
-                    <div class="col-xs-12 no_padding">
-                        <div class="wrapper_banner">
-                            <button onclick="window.location.href='ontwerpen'" type="button" class="btn btn-info btn_ontwerpen2 h_button_home2">Ontwerp je eigen shirt</button>
-                        </div>
-                    </div>
-                </div> <!-- eind row flex  -->
-            </div>
+    <div class="containerdiv memesectie">
+        <h1>Kies een van onze bestaande memes</h1>
+        <div class="memewrapper">
+        <?php
+        $sql = "SELECT * FROM memes";
+        $result = $mysqli->query($sql);
+        while ($row = $result->fetch_assoc()) {
+            echo "<div class='memeblok' onclick='window.location.href = \"ontwerpen?foto=" . urlencode($row['filename']) . "\"'>";
+            echo "<h3>".$row['titel']."</h3>";
+            echo "<img class='memeimg' src='".$row['filename']."' alt='".$row['titel']."'</img>";
+            echo "</div>";
+        }?>
         </div>
-    </div> <!-- eind wrapper winkelen  -->
-    <div id="CookieMelding"></div>
+        <button onclick="window.location.href='ontwerpen'" type="button" class="">Ontwerp je eigen shirt</button>
+        <br>
+    </div>
+

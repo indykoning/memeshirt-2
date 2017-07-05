@@ -1,42 +1,48 @@
-</div>
-<div class="footer">
-    <div class="row" style="background-color: white !important;">
-        <div class="col-xs-12 col-sm-6 col-md-3 col_footer">
-            <div class="footer_section">
-                <h2 class="h2_footer">Contact</h2>
-                <p class="p_footer">info&#64;Thisway.nl</p>
-                <p class="p_footer">035-6560168</p>
-            </div>
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-3 col_footer">
-            <div class="footer_section">
-                <h2 class="h2_footer">Adres</h2>
-                <p class="p_footer">Pr.Fedrik Hendriklaan 41</p>
-                <p class="p_footer">1411 EZ Naarden</p>
-            </div>
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-3 col_footer">
-            <div class="footer_section">
-                <h2 class="h2_footer">Voorwaarden</h2>
-                <p class="p_footer">Algemene voorwaarden</p>
-                <p class="p_footer">Kvk-nummer</p>
-            </div>
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-3 col_footer">
-            <div class="footer_section">
-                <h2 class="h2_footer">Betaalmethodes</h2>
-                <img class="img_footer2" src="links/paypal.png" alt="">
-                <img class="img_footer1" src="links/ideal.png" alt="">
-            </div>
-        </div>
+<div class="containerdiv footersectie">
+    <div class="footwrapper">
+    <hr>
+    <div class="footerblok algemeen">
+        <h3>Algemeen</h3>
+        <ul>
+            <li>Veelgestelde vragen</li>
+            <li>Algemene voorwaarden</li>
+            <li>Zakelijk</li>
+            <li>Retournen</li>
+        </ul>
     </div>
-</div> <!-- eind footer  -->
-</div> <!-- einde class col-xs-12 -->
-</div> <!-- einde class row -->
-</div> <!-- eind container fluid  -->
-</div> <!-- eind no x scroll  -->
-<script src="js/jquery-3.1.1.min.js"></script>
-<script src="js/bootstrap.min.js"></script>
-<script src="js/script.js"></script>
+    <div class="footerblok betaalmethodes">
+        <h3>Betaalmethodes</h3>
+        <ul>
+            <li>Paypal</li>
+            <li>Ideal</li>
+            <li>VISA</li>
+            <li>Mastercard</li>
+        </ul>
+    </div>
+    <div class="footerblok contact">
+        <h3>Contact</h3>
+        <ul>
+            <li>Pr.Fedrik Hendriklaan 41</li>
+            <li>1411 EZ Naarden</li>
+            <li>info@Thisway.nl</li>
+            <li>035-6560168</li>
+        </ul>
+    </div>
+    <div class="footerblok keurmerk">
+        <img src="links/thuiswinkel.png" alt="thuiswinkel">
+    </div>
+    </div>
+</div>
+</div>
+<script>
+    document.getElementById("burgermenu").addEventListener("click", function navbar() {
+        var nav = document.getElementById("nav");
+        if (nav.className === "topnav") {
+            nav.className += " responsive";
+        } else {
+            nav.className = "topnav";
+        }
+    });
+</script>
 </body>
 </html>
