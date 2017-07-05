@@ -29,7 +29,7 @@
         <h1>Kies een van onze bestaande memes</h1>
         <div class="memewrapper">
         <?php
-        $sql = "SELECT * FROM memes";
+        $sql = "SELECT * FROM memes ORDER BY `keren_gebruikt` DESC";
         $result = $mysqli->query($sql);
         while ($row = $result->fetch_assoc()) {
             echo "<div class='memeblok' onclick='window.location.href = \"ontwerpen?foto=" . urlencode($row['filename']) . "\"'>";
