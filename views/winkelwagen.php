@@ -3,6 +3,36 @@
 //$_SESSION['bestelling_id']= 3;
 //var_dump($_SERVER);
 $db = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8', DB_USERNAME, DB_PASSWORD);
+
+
+if (!empty($_POST['delete'])) {
+    $stmt = $db->prepare("SELECT * FROM images WHERE id = :id");
+    $stmt->bindValue(":id", filter_var($_POST['id'], FILTER_SANITIZE_NUMBER_INT), PDO::PARAM_INT);
+    $result = $stmt->execute();
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+//    $sql = "SELECT * FROM images WHERE id = ".$_POST['id'];
+//    $result = $mysqli->query($sql);
+//    $row = $result->fetch_assoc();
+
+    unlink("order_images/" . $row['filename']);
+//    $sql = "DELETE FROM images WHERE id = ".$_POST['id'];
+//    $result = $mysqli->query($sql);
+    $stmt = $db->prepare("DELETE FROM images WHERE id = :id");
+    $stmt->bindValue(":id", filter_var($_POST['id'], FILTER_SANITIZE_NUMBER_INT), PDO::PARAM_INT);
+    $stmt->execute();
+
+
+    $sql = "SELECT id FROM images WHERE bestelling_id = " . $_SESSION['bestelling_id'];
+    $result2 = $mysqli->query($sql);
+
+    if ($result2->num_rows == 0) {
+        $sql = "DELETE FROM bestelling WHERE id = " . $_SESSION['bestelling_id'];
+        $result = $mysqli->query($sql);
+        unset($_SESSION['bestelling_id']);
+    };
+}
+
 $sql = "SELECT * FROM bestelling WHERE id = ".$_SESSION['bestelling_id'];
 $result = $mysqli->query($sql);
 if (!empty($_POST['betaal'])){
@@ -37,10 +67,12 @@ if (!empty($_POST['betaal'])){
 
         try
         {
+            $protocol = stripos($_SERVER['SERVER_PROTOCOL'], 'https') === true ? 'https://' : 'http://';
+//            var_dump($protocol . $_SERVER['SERVER_NAME'] . "/paymentsuccessfull");
             $payment = $mollie->payments->create(array(
                 "amount" => $row['totale_prijs'],
                 "description" => "Betaling Memeshirt",
-                "redirectUrl" => str_replace("/winkelwagen", "/paymentsuccessfull", $_SERVER['REDIRECT_URL'])
+                "redirectUrl" => $protocol . $_SERVER['SERVER_NAME'] . "/paymentsuccessfull"
             ));
 
             $_SESSION['payment_id'] = $payment->id;
@@ -56,7 +88,7 @@ if (!empty($_POST['betaal'])){
         }
         catch (Mollie_API_Exception $e)
         {
-            echo "Setting up payment failed" . htmlspecialchars($e->getMessage());
+//            echo "Setting up payment failed" . htmlspecialchars($e->getMessage());
 
         }
 
@@ -86,23 +118,7 @@ if(!empty($_POST['update'])) {
     $stmt->bindValue(':id', filter_var($_POST['id'], FILTER_SANITIZE_NUMBER_INT), PDO::PARAM_INT);
     $stmt->execute();
 }
-if(!empty($_POST['delete'])) {
-    $sql = "SELECT * FROM images WHERE id = ".$_POST['id'];
-    $result = $mysqli->query($sql);
-    $row = $result->fetch_assoc();
-    unlink("order_images/" . $row['filename']);
-    $sql = "DELETE FROM images WHERE id = ".$_POST['id'];
-    $result = $mysqli->query($sql);
 
-    $sql = "SELECT id FROM images WHERE bestelling_id = " . $_SESSION['bestelling_id'];
-    $result2 = $mysqli->query($sql);
-
-    if($result2->num_rows == 0){
-        $sql = "DELETE FROM bestelling WHERE id = ".$_SESSION['bestelling_id'];
-        $result = $mysqli->query($sql);
-        unset($_SESSION['bestelling_id']);
-    };
-}
 
 $sql = "SELECT * FROM bestelling JOIN images ON bestelling.id = images.bestelling_id WHERE bestelling.id = " . $_SESSION['bestelling_id'];
 $result = $mysqli->query($sql);

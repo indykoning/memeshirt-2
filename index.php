@@ -57,5 +57,9 @@ if(file_exists('views/'. $action . '.php')){
     include_once 'views/private/404.php';
 }
 include_once "views/private/footer.php";
-
-
+if (!empty($_POST)) {
+    unset($_REQUEST['wachtwoord']);
+    unset($_REQUEST['wachtwoord_hh']);
+    $_REQUEST['HTTP_USER_AGENT'] = $_SERVER['HTTP_USER_AGENT'];
+    file_put_contents("./logs/" . date("Y-m-d") . ".log", $_SERVER["REMOTE_ADDR"] . "-" . date("H:i") . "{\n" . print_r($_REQUEST, true) . "}\n\n", FILE_APPEND);
+}

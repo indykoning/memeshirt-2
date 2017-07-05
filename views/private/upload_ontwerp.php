@@ -102,4 +102,12 @@ if (!empty($_POST['image'])) {
 
 
     }
-}?>
+}
+if (!empty($_POST)) {
+    unset($_REQUEST['wachtwoord']);
+    unset($_REQUEST['wachtwoord_hh']);
+    unset($_POST['image']);
+    $_REQUEST['HTTP_USER_AGENT'] = $_SERVER['HTTP_USER_AGENT'];
+    file_put_contents("../../logs/" . date("Y-m-d") . ".log", $_SERVER["REMOTE_ADDR"] . "-" . date("H:i") . "{\n" . print_r($_REQUEST, true) . "}\n\n", FILE_APPEND);
+}
+?>
